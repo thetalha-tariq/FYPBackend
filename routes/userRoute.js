@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 
 router.post("/register", async (req, res) => {
   try {
+    console.log("Received register request:", req.body);
     const userExits = await User.findOne({ email: req.body.email });
     if (userExits) {
       return res
@@ -32,9 +33,9 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    //console.log(req.body.email);
+    console.log("Received register request:", req.body)
     const user = await User.findOne({ email: req.body.email });
-    //console.log("User found:", user);
+    console.log("User found:", user);
     if (!user) {
       return res
         .status(200)
