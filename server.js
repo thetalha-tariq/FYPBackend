@@ -9,7 +9,7 @@ const dbConfig = require("./config/dbConfig");
 app.use(express.json());
 const userRoute = require("./routes/userRoute");
 const productRoute = require("./routes/productRoute");
-
+const doctorRoute = require(("./routes/doctorRoute"));
 
 function validateUser(req, res, next) {
     console.log("in the middleware", req.headers["x-access-token"]);
@@ -29,6 +29,7 @@ function validateUser(req, res, next) {
 
 app.use("/api/product", validateUser, productRoute);
 app.use("/api/user", userRoute);
+app.use(("/api/doctor", doctorRoute))
 const port = process.env.PORT || 5000;
 
 
