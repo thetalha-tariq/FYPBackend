@@ -20,7 +20,6 @@ function validateUser(req, res, next) {
             if (err) {
                 res.json({ status: "error", message: err.message, data: null });
             } else {
-                // add user id to request
                 req.body.userId = decoded.id;
                 next();
             }
@@ -33,9 +32,6 @@ app.use("/api/user", userRoute);
 const port = process.env.PORT || 5000;
 
 
-
-// express doesn't consider not found 404 as an error so we need to handle 404 explicitly
-// handle 404 error
 app.use(function (req, res, next) {
     let err = new Error("Not Found");
     err.status = 404;
