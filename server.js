@@ -9,7 +9,7 @@ const dbConfig = require("./config/dbConfig");
 app.use(express.json());
 const userRoute = require("./routes/userRoute");
 const productRoute = require("./routes/productRoute");
-const doctorRoute = require(("./routes/doctorRoute"));
+const doctorRoute = require("./routes/doctorRoute");
 
 function validateUser(req, res, next) {
     console.log("in the middleware", req.headers["x-access-token"]);
@@ -29,21 +29,21 @@ function validateUser(req, res, next) {
 
 app.use("/api/product", validateUser, productRoute);
 app.use("/api/user", userRoute);
-app.use(("/api/doctor", doctorRoute))
+app.use("/api/doctor", doctorRoute)
 const port = process.env.PORT || 5000;
 
 
-app.use(function (req, res, next) {
-    let err = new Error("Not Found");
-    err.status = 404;
-    next(err);
-});
-// handle errors
-app.use(function (err, req, res, next) {
-    console.log(err);
+// app.use(function (req, res, next) {
+//     let err = new Error("Not Found");
+//     err.status = 404;
+//     next(err);
+// });
+// // handle errors
+// app.use(function (err, req, res, next) {
+//     console.log(err);
 
-    if (err.status === 404) res.status(404).json({ message: "Not found" });
-    else res.status(500).json({ message: "Something looks wrong :( !!!" });
-});
+//     if (err.status === 404) res.status(404).json({ message: "Not found" });
+//     else res.status(500).json({ message: "Something looks wrong :( !!!" });
+// });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

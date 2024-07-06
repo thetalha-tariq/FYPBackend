@@ -16,7 +16,7 @@ module.exports = {
             const hashedPassword = await bcrypt.hash(password, salt);
             req.body.password = hashedPassword;
             const newDoctor = new Doctor(req.body);
-
+            console.log("Line 19:", req.body);
             await newDoctor.save();
             res.status(200).send({ message: "Doctor created successfully", success: true });
         } catch (error) {

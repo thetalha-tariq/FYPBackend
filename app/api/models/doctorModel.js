@@ -35,18 +35,16 @@ const doctorSchema = new mongoose.Schema(
             type: [String],
             required: true,
         },
-        availability: {
-            type: [String],
-            required: true,
-        },
         userRole: {
             type: String,
             trim: true,
             default: "doctor",
-        }
-    },
-    {
-        timestamps: true,
+        },
+        timings: {
+            type: Object,
+            required: true,
+        },
+
     }
 );
 
