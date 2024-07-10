@@ -41,7 +41,7 @@ const doctorSchema = new mongoose.Schema(
             default: "doctor",
         },
         timings: {
-            type: Object,
+            type: "Object",
             required: true,
         },
 

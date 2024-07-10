@@ -64,7 +64,8 @@ module.exports = {
     // Get doctor details
     getDoctor: async (req, res, next) => {
         try {
-            const doctorId = req.params.id;
+            const doctorId = req.params.doctorID;
+            console.log("id",doctorId);
             const doctorInfo = await Doctor.findById(doctorId);
             if (!doctorInfo) {
                 return res.status(404).json({
@@ -83,44 +84,12 @@ module.exports = {
             res.status(500).send({ message: "Error retrieving doctor details", success: false, error });
         }
     },
-
-    // Update doctor details
-    updateDoctor: async (req, res, next) => {
-        try {
-            const doctorId = req.params.id;
-            const updatedData = req.body;
-
-            if (updatedData.password) {
-                const salt = await bcrypt.genSalt(10);
-                const hashedPassword = await bcrypt.hash(updatedData.password, salt);
-                updatedData.password = hashedPassword;
-            }
-
-            const doctorInfo = await Doctor.findByIdAndUpdate(doctorId, updatedData, { new: true });
-            if (!doctorInfo) {
-                return res.status(404).json({
-                    status: "error",
-                    message: "Doctor not found",
-                    data: null,
-                });
-            }
-
-            res.status(200).json({
-                status: "success",
-                message: "Doctor details updated successfully",
-                data: doctorInfo,
-            });
-        } catch (error) {
-            console.log(error);
-            res.status(500).send({ message: "Error updating doctor details", success: false, error });
-        }
-    },
     getAllDoctors: async (req, res, next) => {
         try {
             const doctors = await Doctor.find();
             res.status(200).json({
                 status: "success",
-                message: "Doctors retrieved successfully",
+                message: "All Doctors retrieved successfully",
                 data: doctors,
             });
         } catch (error) {
@@ -128,9 +97,49 @@ module.exports = {
             res.status(500).send({ message: "Error retrieving doctors", success: false, error });
         }
     },
+    // Update doctor details
+    updateDoctor :async (req, res, next) => {
+        try {
+            const doctorId = req.params.doctorID;
+            const updatedData = req.body;
+    
+            // Check if password needs to be updated and hash it
+            if (updatedData.password) {
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(updatedData.password, salt);
+                updatedData.password = hashedPassword;
+            }
+    
+            // Find the doctor by ID and update the details
+            const doctorInfo = await Doctor.findByIdAndUpdate(doctorId, updatedData, { new: true });
+    
+            if (!doctorInfo) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "Doctor not found",
+                    data: null,
+                });
+            }
+    
+            res.status(200).json({
+                status: "success",
+                message: "Doctor details updated successfully",
+                data: doctorInfo,
+            });
+        } catch (error) {
+            console.error('Error updating doctor details:', error);
+            res.status(500).json({
+                status: "error",
+                message: "Error updating doctor details",
+                success: false,
+                error: error.message || error,
+            });
+        }
+    },
+    
     deleteDoctor: async (req, res, next) => {
         try {
-            const doctorId = req.params.id;
+            const doctorId = req.params.doctorID;
             const doctorInfo = await Doctor.findByIdAndDelete(doctorId);
             if (!doctorInfo) {
                 return res.status(404).json({
