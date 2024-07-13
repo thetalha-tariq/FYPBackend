@@ -65,7 +65,7 @@ module.exports = {
     getDoctor: async (req, res, next) => {
         try {
             const doctorId = req.params.doctorID;
-            console.log("id",doctorId);
+            console.log("id", doctorId);
             const doctorInfo = await Doctor.findById(doctorId);
             if (!doctorInfo) {
                 return res.status(404).json({
@@ -84,6 +84,8 @@ module.exports = {
             res.status(500).send({ message: "Error retrieving doctor details", success: false, error });
         }
     },
+
+    // Get all doctors
     getAllDoctors: async (req, res, next) => {
         try {
             const doctors = await Doctor.find();
@@ -97,22 +99,23 @@ module.exports = {
             res.status(500).send({ message: "Error retrieving doctors", success: false, error });
         }
     },
+
     // Update doctor details
-    updateDoctor :async (req, res, next) => {
+    updateDoctor: async (req, res, next) => {
         try {
             const doctorId = req.params.doctorID;
             const updatedData = req.body;
-    
+
             // Check if password needs to be updated and hash it
             if (updatedData.password) {
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(updatedData.password, salt);
                 updatedData.password = hashedPassword;
             }
-    
+
             // Find the doctor by ID and update the details
             const doctorInfo = await Doctor.findByIdAndUpdate(doctorId, updatedData, { new: true });
-    
+
             if (!doctorInfo) {
                 return res.status(404).json({
                     status: "error",
@@ -120,7 +123,7 @@ module.exports = {
                     data: null,
                 });
             }
-    
+
             res.status(200).json({
                 status: "success",
                 message: "Doctor details updated successfully",
@@ -136,7 +139,8 @@ module.exports = {
             });
         }
     },
-    
+
+    // Delete doctor
     deleteDoctor: async (req, res, next) => {
         try {
             const doctorId = req.params.doctorID;
@@ -158,6 +162,42 @@ module.exports = {
             console.log(error);
             res.status(500).send({ message: "Error deleting doctor", success: false, error });
         }
-    }
+    },
 
+    // Update timings for a specific doctor
+    updateTimings: async (req, res, next) => {
+        try {
+            const doctorId = req.params.doctorID;
+            const updatedTimings = req.body.timings;
+
+            const doctorInfo = await Doctor.findByIdAndUpdate(
+                doctorId,
+                { timings: updatedTimings },
+                { new: true }
+            );
+
+            if (!doctorInfo) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "Doctor not found",
+                    data: null,
+                });
+            }
+
+            res.status(200).json({
+                status: "success",
+                message: "Doctor timings updated successfully",
+                data: doctorInfo,
+            });
+        } catch (error) {
+            console.error('Error updating doctor timings:', error);
+            res.status(500).json({
+                status: "error",
+                message: "Error updating doctor timings",
+                success: false,
+                error: error.message || error,
+            });
+        }
+    },
 };
+
