@@ -1,73 +1,75 @@
 const Doctor = require('../models/doctorModel');
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-
+const jwt = require("jsonwebtoken")
 module.exports = {
     // Create a new doctor
-    create: async (req, res, next) => {
+    createDoctor: async (req, res, next) => {
         try {
-            console.log("Received register request:", req.body);
-            const doctorExists = await Doctor.findOne({ email: req.body.email });
+            const { name, specialization,password, email, phone, slotsPerDay } = req.body;
+            
+            // Check if the doctor already exists
+            const doctorExists = await Doctor.findOne({ email });
             if (doctorExists) {
-                return res.status(200).send({ message: "Doctor already exists", success: false });
+                return res.status(400).send({ message: "Doctor already exists", success: false });
             }
-            const password = req.body.password;
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
-            req.body.password = hashedPassword;
+
             const newDoctor = new Doctor(req.body);
-            console.log("Line 19:", req.body);
             await newDoctor.save();
-            res.status(200).send({ message: "Doctor created successfully", success: true });
+            res.status(200).send({ message: "Doctor created successfully", success: true, data: newDoctor });
         } catch (error) {
             console.log(error);
             res.status(500).send({ message: "Error creating doctor", success: false, error });
         }
     },
-
-    // Authenticate a doctor
-    authenticate: async (req, res, next) => {
-        console.log("Received authentication request:", req.body);
+    authenticateDoctor: async (req, res) => {
         try {
-            const doctorInfo = await Doctor.findOne({ email: req.body.email });
-            if (!doctorInfo) {
-                return res.status(412).json({
-                    status: "error",
-                    message: "Invalid email/password",
-                    data: null,
-                });
-            }
+          const { email, password } = req.body;
+    
+          // Check if the doctor exists
+          const doctor = await Doctor.findOne({ email });
+          if (!doctor) {
+            return res.status(400).send({ message: "Invalid credentials", success: false });
+          }
+    
+          // Check if the password matches
+          if (doctor.password !== password) {
+            return res.status(400).send({ message: "Invalid credentials", success: false });
+          }
+          if(doctor.password==password)
+          {
+           // return res.status(200).send({ message: "Login Successfully", success: true });
+          
+            console.log("3")
+            const token = jwt.sign({ id: doctor._id }, req.app.get("secretKey"), {
+                expiresIn: "24h",
+            });
+            console.log("4")
+            res.json({
+                status: "success",
+                message: "Doctor found!!!",
+                data: { doctor: doctor, token: token },
+            });
+        } else {
 
-            const isPasswordValid = await bcrypt.compare(req.body.password, doctorInfo.password);
-            if (isPasswordValid) {
-                const token = jwt.sign({ id: doctorInfo._id }, req.app.get("secretKey"), {
-                    expiresIn: "24h",
-                });
-                res.json({
-                    status: "success",
-                    message: "Doctor authenticated successfully",
-                    data: { doctor: doctorInfo, token: token },
-                });
-            } else {
-                res.status(412).json({
-                    status: "error",
-                    message: "Invalid email/password",
-                    data: null,
-                });
-            }
-        } catch (error) {
-            console.log(error);
-            next(error);
+            res.status(412).json({
+                status: "error",
+                message: "Invalid email/password!!!",
+                data: null,
+            });
         }
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).send({ message: "Error authenticating doctor", success: false, error });
+          }
     },
 
-    // Get doctor details
-    getDoctor: async (req, res, next) => {
+    // Get a doctor by ID
+    getDoctorById: async (req, res, next) => {
         try {
             const doctorId = req.params.doctorID;
-            console.log("id", doctorId);
-            const doctorInfo = await Doctor.findById(doctorId);
-            if (!doctorInfo) {
+            const doctor = await Doctor.findById(doctorId);
+            if (!doctor) {
                 return res.status(404).json({
                     status: "error",
                     message: "Doctor not found",
@@ -77,7 +79,7 @@ module.exports = {
             res.status(200).json({
                 status: "success",
                 message: "Doctor details retrieved successfully",
-                data: doctorInfo,
+                data: doctor,
             });
         } catch (error) {
             console.log(error);
@@ -91,7 +93,7 @@ module.exports = {
             const doctors = await Doctor.find();
             res.status(200).json({
                 status: "success",
-                message: "All Doctors retrieved successfully",
+                message: "All doctors retrieved successfully",
                 data: doctors,
             });
         } catch (error) {
@@ -100,23 +102,14 @@ module.exports = {
         }
     },
 
-    // Update doctor details
+    // Update a doctor
     updateDoctor: async (req, res, next) => {
         try {
             const doctorId = req.params.doctorID;
             const updatedData = req.body;
+            const doctor = await Doctor.findByIdAndUpdate(doctorId, updatedData, { new: true });
 
-            // Check if password needs to be updated and hash it
-            if (updatedData.password) {
-                const salt = await bcrypt.genSalt(10);
-                const hashedPassword = await bcrypt.hash(updatedData.password, salt);
-                updatedData.password = hashedPassword;
-            }
-
-            // Find the doctor by ID and update the details
-            const doctorInfo = await Doctor.findByIdAndUpdate(doctorId, updatedData, { new: true });
-
-            if (!doctorInfo) {
+            if (!doctor) {
                 return res.status(404).json({
                     status: "error",
                     message: "Doctor not found",
@@ -127,7 +120,7 @@ module.exports = {
             res.status(200).json({
                 status: "success",
                 message: "Doctor details updated successfully",
-                data: doctorInfo,
+                data: doctor,
             });
         } catch (error) {
             console.error('Error updating doctor details:', error);
@@ -140,12 +133,12 @@ module.exports = {
         }
     },
 
-    // Delete doctor
+    // Delete a doctor
     deleteDoctor: async (req, res, next) => {
         try {
             const doctorId = req.params.doctorID;
-            const doctorInfo = await Doctor.findByIdAndDelete(doctorId);
-            if (!doctorInfo) {
+            const doctor = await Doctor.findByIdAndDelete(doctorId);
+            if (!doctor) {
                 return res.status(404).json({
                     status: "error",
                     message: "Doctor not found",
@@ -156,48 +149,11 @@ module.exports = {
             res.status(200).json({
                 status: "success",
                 message: "Doctor deleted successfully",
-                data: doctorInfo,
+                data: doctor,
             });
         } catch (error) {
             console.log(error);
             res.status(500).send({ message: "Error deleting doctor", success: false, error });
         }
-    },
-
-    // Update timings for a specific doctor
-    updateTimings: async (req, res, next) => {
-        try {
-            const doctorId = req.params.doctorID;
-            const updatedTimings = req.body.timings;
-
-            const doctorInfo = await Doctor.findByIdAndUpdate(
-                doctorId,
-                { timings: updatedTimings },
-                { new: true }
-            );
-
-            if (!doctorInfo) {
-                return res.status(404).json({
-                    status: "error",
-                    message: "Doctor not found",
-                    data: null,
-                });
-            }
-
-            res.status(200).json({
-                status: "success",
-                message: "Doctor timings updated successfully",
-                data: doctorInfo,
-            });
-        } catch (error) {
-            console.error('Error updating doctor timings:', error);
-            res.status(500).json({
-                status: "error",
-                message: "Error updating doctor timings",
-                success: false,
-                error: error.message || error,
-            });
-        }
-    },
+    }
 };
-

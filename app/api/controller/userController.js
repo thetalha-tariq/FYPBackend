@@ -8,9 +8,10 @@ module.exports = {
             console.log("Received register request:", req.body);
             const userExits = await User.findOne({ email: req.body.email });
             if (userExits) {
+                console.log("user already existys")
                 return res
-                    .status(200)
-                    .send({ message: "User Already Exit", success: false });
+                    .status(412)
+                    .send({ message: "User Already Exists!!!", success: false });
             }
             const password = req.body.password;
             const salt = await bcrypt.genSalt(10);

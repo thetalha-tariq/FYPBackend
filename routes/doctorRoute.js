@@ -1,13 +1,12 @@
-const express = require("express");
+const express = require('express');
+const doctorController = require('../app/api/controller/doctorController');
 const router = express.Router();
-const DoctorController = require('../app/api/controller/doctorController');
 
-router.post("/create", DoctorController.create);
-router.get("/", DoctorController.getAllDoctors);
-router.post("/authenticate", DoctorController.authenticate);
-router.get("/:doctorID", DoctorController.getDoctor);
-router.put("/:doctorID", DoctorController.updateDoctor);
-router.put("/:doctorID/timings", DoctorController.updateTimings); 
-router.delete("/:doctorID", DoctorController.deleteDoctor);
+router.post('/create', doctorController.createDoctor);
+router.get('/:doctorID', doctorController.getDoctorById);
+router.get('/', doctorController.getAllDoctors);
+router.put('/:doctorID', doctorController.updateDoctor);
+router.delete('/:doctorID', doctorController.deleteDoctor);
+router.post('/loginDoctor', doctorController.authenticateDoctor);
 
 module.exports = router;

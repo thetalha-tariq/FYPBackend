@@ -8,10 +8,12 @@ require("dotenv").config();
 const dbConfig = require("./config/dbConfig");
 app.use(express.json());
 const userRoute = require("./routes/userRoute");
-const productRoute = require("./routes/productRoute");
+const productRoute = require("./routes/productRoutes");
 const doctorRoute = require("./routes/doctorRoute");
 const slotRoute = require("./routes/slotRoute");
-
+const doctorSlotRoute = require("./routes/doctorSlotRoutes");
+const appointmentRoute = require("./routes/appointmentRoute");
+const { exec } = require('child_process');
 
 function validateUser(req, res, next) {
     console.log("in the middleware", req.headers["x-access-token"]);
@@ -28,11 +30,26 @@ function validateUser(req, res, next) {
         }
     );
 }
+app.use(express.json());
 
-app.use("/api/product", validateUser, productRoute);
+app.post('/api/chat', (req, res) => {
+    const userQuestion = req.body.question;
+    exec(`python "C:\\Final Year Project\\backend\\scripts\\answer_question.py" "${userQuestion}"`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+            return res.status(500).send('Server error');
+        }
+        res.json({ answer: stdout.trim() });
+    });
+});
+
 app.use("/api/user", userRoute);
 app.use("/api/doctor", doctorRoute);
 app.use("/api/slot",slotRoute);
+app.use("/api/doctorSlot",doctorSlotRoute);
+app.use("/api/appointment",appointmentRoute);
+app.use("/api/product",productRoute)
+
 const port = process.env.PORT || 5000;
 
 
