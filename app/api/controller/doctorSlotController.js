@@ -9,7 +9,7 @@ module.exports = {
             // Check if the slot is already booked for the doctor on the given date
             const slotExists = await DoctorSlot.findOne({ doctorId, slotId, date });
             if (slotExists) {
-                return res.status(400).send({ message: "Slot already booked", success: false });
+                return res.status(400).send({ message: "Slot already Exists", success: false });
             }
 
             const newDoctorSlot = new DoctorSlot(req.body);

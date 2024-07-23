@@ -13,6 +13,7 @@ const doctorRoute = require("./routes/doctorRoute");
 const slotRoute = require("./routes/slotRoute");
 const doctorSlotRoute = require("./routes/doctorSlotRoutes");
 const appointmentRoute = require("./routes/appointmentRoute");
+const userContactDataRoute = require("./routes/userContactDataRoute");
 const { exec } = require('child_process');
 
 function validateUser(req, res, next) {
@@ -49,6 +50,8 @@ app.use("/api/slot",slotRoute);
 app.use("/api/doctorSlot",doctorSlotRoute);
 app.use("/api/appointment",appointmentRoute);
 app.use("/api/product",productRoute)
+app.use("/api/userContactData",userContactDataRoute)
+
 
 const port = process.env.PORT || 5000;
 

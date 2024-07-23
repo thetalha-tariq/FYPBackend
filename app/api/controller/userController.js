@@ -75,4 +75,90 @@ module.exports = {
             next(error);
         }
     },
+    getuserId: async (req, res, next) => {
+        try {
+            const userId = req.params.userId;
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "User not found",
+                    data: null,
+                });
+            }
+            res.status(200).json({
+                status: "success",
+                message: "User details retrieved successfully",
+                data: user,
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ message: "Error retrieving user details", success: false, error });
+        }
+    },
+    getAllUsers: async (req, res, next) => {
+        try {
+            const users = await User.find();
+            res.status(200).json({
+                status: "success",
+                message: "All Users retrieved successfully",
+                data: users,
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ message: "Error retrieving user", success: false, error });
+        }
+    },
+    updateuser: async (req, res, next) => {
+        try {
+            const userId = req.params.userId;
+            const updatedData = req.body;
+            const user = await User.findByIdAndUpdate(userId, updatedData, { new: true });
+
+            if (!user) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "User not found",
+                    data: null,
+                });
+            }
+
+            res.status(200).json({
+                status: "success",
+                message: "User details updated successfully",
+                data: user,
+            });
+        } catch (error) {
+            console.error('Error updating user details:', error);
+            res.status(500).json({
+                status: "error",
+                message: "Error updating user details",
+                success: false,
+                error: error.message || error,
+            });
+        }
+    },
+    deleteuser: async (req, res, next) => {
+        try {
+            const userId = req.params.userId;
+            const user = await User.findByIdAndDelete(userId);
+            if (!user) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "User not found",
+                    data: null,
+                });
+            }
+
+            res.status(200).json({
+                status: "success",
+                message: "User deleted successfully",
+                data: user,
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ message: "Error deleting user", success: false, error });
+        }
+    }
+
 }
