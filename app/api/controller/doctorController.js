@@ -88,7 +88,7 @@ module.exports = {
     },
 
     // Get all doctors
-    getAllDoctors: async (req, res, next) => {
+    getAllData: async (req, res, next) => {
         try {
             const doctors = await Doctor.find();
             res.status(200).json({
@@ -154,6 +154,34 @@ module.exports = {
         } catch (error) {
             console.log(error);
             res.status(500).send({ message: "Error deleting doctor", success: false, error });
+        }
+    },
+    getAllDoctors: async (req, res, next) => {
+        try {
+            const doctors = await Doctor.find({ role: 'doctor' });
+            res.status(200).json({
+                status: "success",
+                message: "All doctors retrieved successfully",
+                data: doctors,
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ message: "Error retrieving doctors", success: false, error });
+        }
+    },
+
+    // Get all groomers with role 'groomer'
+    getAllGroomers: async (req, res, next) => {
+        try {
+            const groomers = await Doctor.find({ role: 'groomer' });
+            res.status(200).json({
+                status: "success",
+                message: "All groomers retrieved successfully",
+                data: groomers,
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ message: "Error retrieving groomers", success: false, error });
         }
     }
 };

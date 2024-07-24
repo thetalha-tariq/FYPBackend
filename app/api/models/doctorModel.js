@@ -22,6 +22,9 @@ const doctorSchema = new mongoose.Schema(
       required:false,
       unique:true,
     },
+    address:{
+      type:String
+    },
     phone: {
       type: String,
       required: false,
