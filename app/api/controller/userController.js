@@ -8,7 +8,7 @@ module.exports = {
             console.log("Received register request:", req.body);
             const userExits = await User.findOne({ email: req.body.email });
             if (userExits) {
-                console.log("user already existys")
+                console.log("user already exist")
                 return res
                     .status(412)
                     .send({ message: "User Already Exists!!!", success: false });

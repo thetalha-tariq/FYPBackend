@@ -12,11 +12,34 @@ const appointmentSchema = new mongoose.Schema(
       ref: 'DoctorSlot',
       required: true,
     },
+    doctorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Doctor',
+      required: true,
+    },
     status: {
       type: String,
       enum: ['Pending', 'Confirmed', 'Cancelled'],
       default: 'Pending',
     },
+    name:{
+      type: String,
+    },
+    email:{
+      type: String,
+    },
+    phone:{
+      type:String,
+    },
+    petName:{
+      type:String,
+    },
+    disease:{
+      type:String,
+    },
+    groomingService:{
+      type:String,
+    }
   },
   {
     timestamps: true,
