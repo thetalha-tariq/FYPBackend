@@ -1,6 +1,8 @@
 const User = require('../models/userModel')
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 module.exports = {
 
     create: async (req, res, next) => {
@@ -159,6 +161,97 @@ module.exports = {
             console.log(error);
             res.status(500).send({ message: "Error deleting user", success: false, error });
         }
-    }
+    },
 
+    forgotPassword: async (req, res, next) => {
+        try {
+            const { email } = req.body;
+            const user = await User.findOne({ email });
+
+            if (!user) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "User with this email does not exist",
+                });
+            }
+
+            const resetToken = crypto.randomBytes(32).toString("hex");
+            const hash = await bcrypt.hash(resetToken, 10);
+
+            user.resetPasswordToken = hash;
+            user.resetPasswordExpires = Date.now() + 3600000; // 1 hour from now
+            await user.save();
+
+            const resetUrl = `http://localhost:3000/resetPassword?token=${resetToken}&id=${user._id}`;
+
+            const transporter = nodemailer.createTransport({
+                service: "Gmail",
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS,
+                },
+            });
+            console.log('Email Username:', process.env.EMAIL_USER);
+            console.log('Email Password:', process.env.EMAIL_PASS);
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: user.email,
+                subject: "Password Reset",
+                text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
+                      `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
+                      `${resetUrl}\n\n` +
+                      `If you did not request this, please ignore this email and your password will remain unchanged.\n`
+            };
+            console.log('Email Password:', process.env.EMAIL_PASS);
+            console.log(mailOptions)
+            await transporter.sendMail(mailOptions);
+            console.log('Email Password:', process.env.EMAIL_PASS);
+            res.status(200).json({
+                status: "success",
+                message: "Password reset email sent successfully",
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ message: "Error sending password reset email", success: false, error });
+        }
+    },
+
+    resetPassword: async (req, res, next) => {
+        try {
+            const { token, id } = req.query;
+            const { password } = req.body;
+            console.log(req.body);
+            console.log(req.query);
+            const user = await User.findById(id);
+            if (!user) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "Invalid or expired password reset token",
+                });
+            }
+            console.log(token);
+            console.log(user.resetPasswordToken);
+            const isTokenValid = await bcrypt.compare(token, user.resetPasswordToken);
+            if (!isTokenValid) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "Invalid or expired password reset token",
+                });
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(password, salt);
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+            await user.save();
+
+            res.status(200).json({
+                status: "success",
+                message: "Password reset successfully",
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ message: "Error resetting password", success: false, error });
+        }
+    }
 }

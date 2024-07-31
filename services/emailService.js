@@ -21,7 +21,7 @@ const sendConfirmationEmail = (to, slotDetails) => {
     subject: 'Appointment Confirmation',
     text: `Your appointment is confirmed for ${slotDetails.date} at ${slotDetails.startTime} - ${slotDetails.endTime}.`
   };
-
+  console.log(mailOptions);
   return transporter.sendMail(mailOptions);
 };
 
