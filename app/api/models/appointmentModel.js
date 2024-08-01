@@ -37,7 +37,7 @@ const appointmentSchema = new mongoose.Schema(
     disease:{
       type:String,
     },
-    groomingService:{
+    groomingServices:{
       type:String,
     }
   },

@@ -7,7 +7,7 @@ module.exports = {
     createAppointment: async (req, res) => {
         console.log('createAppointment called');
         try {
-            const { userId, doctorSlotId, status,name,email,phone,petName,disease,groomingService,doctorId } = req.body;
+            const { userId, doctorSlotId, status,name,email,phone,petName,disease,groomingServices,doctorId } = req.body;
 
             // Check if the slot is already booked
             const slot = await DoctorSlot.findById(doctorSlotId);
@@ -18,7 +18,7 @@ module.exports = {
                 return res.status(400).send({ message: "Doctor slot is already booked", success: false });
             }
 
-            const newAppointment = new Appointment({ userId, doctorSlotId, status,name,email,phone,petName,disease,groomingService,doctorId });
+            const newAppointment = new Appointment({ userId, doctorSlotId, status,name,email,phone,petName,disease,groomingServices,doctorId });
             await newAppointment.save();
 
             // Mark the slot as booked
