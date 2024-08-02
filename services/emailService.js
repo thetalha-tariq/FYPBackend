@@ -25,4 +25,18 @@ const sendConfirmationEmail = (to, slotDetails) => {
   return transporter.sendMail(mailOptions);
 };
 
-module.exports = { sendConfirmationEmail };
+const sendConfirmationEmailToDoctor = (to, appointmentDetails) => {
+  const { name, email, petName, disease, groomingServices } = appointmentDetails;
+  const details = disease ? `Disease: ${disease}` : `Grooming Services: ${groomingServices}`;
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to,
+    subject: 'New Appointment Booking',
+    text: `The user with the following details has booked an appointment:\n\nName: ${name}\nEmail: ${email}\nPet Name: ${petName}\n${details}\n\nPlease log in to your portal to approve the appointment.`
+  };
+  return transporter.sendMail(mailOptions);
+};
+
+
+
+module.exports = { sendConfirmationEmail, sendConfirmationEmailToDoctor };

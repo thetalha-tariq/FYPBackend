@@ -1,15 +1,15 @@
 const Appointment = require('../models/appointmentModel');
 const DoctorSlot = require('../models/doctorSlotModel');
-const { sendConfirmationEmail } = require('../../../services/emailService')
+const { sendConfirmationEmail,sendConfirmationEmailToDoctor  } = require('../../../services/emailService')
 
 module.exports = {
     // Create a new appointment
     createAppointment: async (req, res) => {
         console.log('createAppointment called');
         try {
-            const { userId, doctorSlotId, status,name,email,phone,petName,disease,groomingServices,doctorId } = req.body;
-
-            // Check if the slot is already booked
+            const { userId, doctorSlotId, status, name, email, phone, petName, disease, groomingServices, doctorId, doctorEmail } = req.body;
+            console.log("DoctorEmail:", doctorEmail);
+            
             const slot = await DoctorSlot.findById(doctorSlotId);
             if (!slot) {
                 return res.status(400).send({ message: "Doctor slot not found", success: false });
@@ -17,14 +17,16 @@ module.exports = {
             if (slot.booked) {
                 return res.status(400).send({ message: "Doctor slot is already booked", success: false });
             }
-
-            const newAppointment = new Appointment({ userId, doctorSlotId, status,name,email,phone,petName,disease,groomingServices,doctorId });
+    
+            const newAppointment = new Appointment({ userId, doctorSlotId, status, name, email, phone, petName, disease, groomingServices, doctorId });
             await newAppointment.save();
-
-            // Mark the slot as booked
+    
             slot.booked = true;
             await slot.save();
-
+    
+            // Send confirmation email to the doctor
+            await sendConfirmationEmailToDoctor(doctorEmail, { name, email, petName, disease, groomingServices });
+    
             res.status(200).send({ message: "Appointment created successfully", success: true, data: newAppointment });
         } catch (error) {
             console.log(error);
