@@ -39,7 +39,27 @@ module.exports = {
         .send({ message: "Error Retrieving Products", success: false, error });
     }
   },
+  getProductById: async (req, res, next) => {
+    try {
+      console.log(`Received get product by ID request: ${req.params.id}`);
+      const product = await Product.findById(req.params.id);
 
+      if (!product) {
+        return res
+          .status(404)
+          .send({ message: "Product Not Found", success: false });
+      }
+
+      res
+        .status(200)
+        .send({ message: "Product Retrieved Successfully", success: true, product });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .send({ message: "Error Retrieving Product", success: false, error });
+    }
+  },
   update: async (req, res, next) => {
     try {
       console.log("Received update product request:", req.body);

@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 const OrderController = require('../app/api/controller/orderController');
 
-router.post("/create", OrderController.create);
-router.delete("/:id", OrderController.delete);
-router.get("/get", OrderController.getAll);
+router.post("/create", OrderController.createOrder);
+router.get("/", OrderController.getAllOrders);
+router.put("/", OrderController.updateOrderStatus);
+router.get('/byId/:id', OrderController.getOrderById);
 // router.get("/total-orders", OrderController.countTotalOrders);
 // router.get("/total-sales", OrderController.calculateTotalSales);
 // router.get("/total-sales-by-date", OrderController.calculateTotalSalesByDate);
