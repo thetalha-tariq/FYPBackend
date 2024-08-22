@@ -183,5 +183,84 @@ module.exports = {
             console.log(error);
             res.status(500).send({ message: "Error retrieving groomers", success: false, error });
         }
-    }
+    },
+    changePassword: async (req, res) => {
+        try {
+            const doctorId = req.params.doctorID;
+            const { newPassword } = req.body;
+
+           // const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+            const doctor = await Doctor.findByIdAndUpdate(
+                doctorId,
+                { password: newPassword },
+                { new: true }
+            );
+
+            if (!doctor) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "Doctor not found",
+                    data: null,
+                });
+            }
+
+            res.status(200).json({
+                status: "success",
+                message: "Password updated successfully",
+                data: doctor,
+            });
+        } catch (error) {
+            console.error('Error updating password:', error);
+            res.status(500).json({
+                status: "error",
+                message: "Error updating password",
+                success: false,
+                error: error.message || error,
+            });
+        }
+    },
+
+    // Upload photo
+    uploadPhoto: async (req, res) => {
+        try {
+            const doctorId = req.params.doctorID;
+
+            if (!req.file) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "No file uploaded",
+                    data: null,
+                });
+            }
+
+            const doctor = await Doctor.findById(doctorId);
+
+            if (!doctor) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "Doctor not found",
+                    data: null,
+                });
+            }
+
+            const imagePath = req.file.filename;
+            doctor.image = imagePath;
+            await doctor.save();
+
+            res.status(200).json({
+                status: "success",
+                message: "Photo uploaded successfully",
+                data: doctor,
+            });
+        } catch (error) {
+            console.error('Error uploading photo:', error);
+            res.status(500).json({
+                status: "error",
+                message: "Error uploading photo",
+                success: false,
+                error: error.message || error,
+            });
+        }
+    },
 };

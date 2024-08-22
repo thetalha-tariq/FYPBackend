@@ -1,10 +1,12 @@
 const UserContactData = require('../models/UserContactDataModel');
-
+const {sendContactDataFromUserForm} = require('../../../services/emailService');
 module.exports = {
     createUserContactData: async (req, res, next) => {
         try {
             const newUserContactData = new UserContactData(req.body);
             await newUserContactData.save();
+            sendContactDataFromUserForm(process.env.EMAIL_USER,newUserContactData.name,newUserContactData.email,newUserContactData.phone,newUserContactData.message)
+            console.log(process.env.EMAIL_USER,newUserContactData.name,newUserContactData.email,newUserContactData.phone,newUserContactData.message)
             res.status(200).send({ message: "User contact data created successfully", success: true, data: newUserContactData });
         } catch (error) {
             console.error("Error creating user contact data:", error);

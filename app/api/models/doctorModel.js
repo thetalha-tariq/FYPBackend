@@ -38,6 +38,9 @@ const doctorSchema = new mongoose.Schema(
       type:String,
       default:"doctor",
     },
+    payment:{
+      type:String
+    }
   },
   {
     timestamps: true,

@@ -26,7 +26,7 @@ module.exports = {
         try {
             const doctorId = req.params.doctorSlotID;
             const doctorSlots = await DoctorSlot.find({ doctorId: doctorId });
-            console.log("doctorId:",req.params.doctorSlotID);
+            //console.log("doctorId:",req.params.doctorSlotID);
     
             if (!doctorSlots.length) {
                 return res.status(404).json({
